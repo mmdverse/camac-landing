@@ -28,7 +28,8 @@
 
 <!-- LOADING CINEMATIC §5 -->
 <div id="loadingSection" aria-hidden="false">
-  <canvas id="loadingCanvas" class="canvas-el" width="1080" height="1920" aria-label="Loading cinematic"></canvas>
+  <video id="loadingVideo" src="loading.mp4" muted playsinline autoplay preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:var(--black)" aria-label="Loading cinematic"></video>
+  <canvas id="loadingCanvas" class="canvas-el" width="1080" height="1920" aria-label="Loading cinematic" style="display:none"></canvas>
   <div id="loadingVignette"></div>
   <div id="brandReveal" aria-label="برند کاماک">
     <div class="brand-halo" aria-hidden="true"></div>
