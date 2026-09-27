@@ -97,11 +97,6 @@ export function initLoader({ onComplete }){
       if (elapsed >= brandStart && !brandShown){
         brandShown = true;
         brand.classList.add('visible');
-        // animate letters stagger
-        const letters = brand.querySelectorAll('.brand-fa span');
-        letters.forEach((sp, idx)=>{
-          sp.style.transitionDelay = (0.12 + idx*0.09) + 's';
-        });
       }
       // Fade video layer gradually from brandStart to end
       if (elapsed >= brandStart){
