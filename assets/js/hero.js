@@ -195,15 +195,44 @@ export function initHero(){
     }
   }
 
-  // Initial preload — wider window for smoothness
+  // Initial preload — wider window for smoothness, stable sizing
   ctrl.preloadWindow(0, 32);
   ctrl.renderFrameImmediate(0);
-  // need to ensure canvas sized
-  setTimeout(()=> ctrl._resize(), 80);
-  setTimeout(()=> { ctrl._resize(); ctrl.renderFrameImmediate(0); }, 250);
+  // ensure canvas sized without flash
+  setTimeout(()=>{ ctrl._resize(); }, 90);
+  setTimeout(()=>{ ctrl._resize(); ctrl.renderFrameImmediate(ctrl.frameIndex); }, 280);
 
   window.addEventListener('scroll', handleScroll, { passive: true });
-  window.addEventListener('resize', handleScroll);
+  // Responsive resize — debounced, no jump
+  let resizeTimer = null;
+  let lastHeroProgress = 0;
+  const onHeroResize = ()=>{
+    clearTimeout(resizeTimer);
+    // keep canvas sized, don't jump frame
+    ctrl._resize();
+    resizeTimer = setTimeout(()=>{
+      const p = getHeroProgress();
+      const target = p * (heroFrames.count - 1);
+      const diff = Math.abs(target - ctrl.current);
+      // If resize caused large progress jump (mobile address bar / orientation), keep visual stable
+      if (diff > 10){
+        // temporarily keep current frame, sync gently after
+        const keepP = ctrl.current / (heroFrames.count - 1);
+        ctrl.setProgress(keepP);
+        // gentle sync after layout stabilizes
+        setTimeout(()=>{
+          const np = getHeroProgress();
+          ctrl.setProgress(np);
+          updateMetrics(np);
+        }, 360);
+      } else {
+        handleScroll();
+      }
+      lastHeroProgress = p;
+    }, 140);
+  };
+  window.addEventListener('resize', onHeroResize, { passive: true });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', onHeroResize, { passive: true });
 
   // Intersection to pause autoplay when hero not visible
   const io = new IntersectionObserver(entries=>{

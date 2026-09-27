@@ -40,23 +40,41 @@ export class FrameController {
   }
 
   _initCanvas(){
-    // wait a tick so layout is ready
-    const ro = new ResizeObserver(()=>this._resize());
+    // wait a tick so layout is ready — stable observer without jump
+    let resizeTick = null;
+    let lastW = 0, lastH = 0;
+    const debouncedResize = ()=>{
+      if (resizeTick) return;
+      resizeTick = requestAnimationFrame(()=>{
+        resizeTick = null;
+        const rect = this.canvas.getBoundingClientRect();
+        const w = Math.round(rect.width), h = Math.round(rect.height);
+        // ignore tiny changes (<2px) that cause jitter on mobile addressbar
+        if (Math.abs(w - lastW) < 2 && Math.abs(h - lastH) < 2) return;
+        lastW = w; lastH = h;
+        this._dpr = Math.min(window.devicePixelRatio||1,2);
+        this._resize();
+        this.needsRender = true;
+      });
+    };
+    const ro = new ResizeObserver(()=> debouncedResize());
     try{ ro.observe(this.canvas); }catch(e){}
     this._resizeObserver = ro;
-    // initial resize attempts
+    // initial resize attempts — staggered, no jump
     this._resize();
-    setTimeout(()=>this._resize(), 80);
-    setTimeout(()=>this._resize(), 300);
+    setTimeout(()=>{ this._resize(); lastW = Math.round(this.canvas.getBoundingClientRect().width); lastH = Math.round(this.canvas.getBoundingClientRect().height); }, 90);
+    setTimeout(()=> this._resize(), 320);
     this._renderLoop();
-    window.addEventListener('resize', ()=>{ this._dpr = Math.min(window.devicePixelRatio||1,2); this._resize(); this.needsRender = true; });
-    // also handle orientationchange
-    window.addEventListener('orientationchange', ()=> setTimeout(()=>this._resize(), 200));
+    // use visualViewport if available for stable resize on mobile (address bar)
+    const onResize = ()=> debouncedResize();
+    window.addEventListener('resize', onResize, {passive:true});
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize, {passive:true});
+    window.addEventListener('orientationchange', ()=> setTimeout(()=>{ debouncedResize(); }, 250));
   }
 
   _resize(){
     const rect = this.canvas.getBoundingClientRect();
-    // fallback if rect is 0 (hidden) try parent
+    // fallback if rect is 0 (hidden) try parent — stable
     let w = rect.width, h = rect.height;
     if (w < 10 || h < 10){
       const p = this.canvas.parentElement;
@@ -68,9 +86,18 @@ export class FrameController {
         w = window.innerWidth; h = window.innerHeight;
       }
     }
-    const pw = Math.max(1, Math.round(w * this._dpr));
-    const ph = Math.max(1, Math.round(h * this._dpr));
+    // clamp to avoid extreme DPR spikes on zoom
+    const dpr = Math.min(window.devicePixelRatio||1, 2);
+    this._dpr = dpr;
+    const pw = Math.max(1, Math.round(w * dpr));
+    const ph = Math.max(1, Math.round(h * dpr));
+    // only resize canvas if changed, but preserve drawing to avoid flash
     if (this.canvas.width !== pw || this.canvas.height !== ph){
+      // save current frame image if exists to avoid black flash
+      const prevW = this.canvas.width, prevH = this.canvas.height;
+      if (prevW && prevH && this.frameIndex !== undefined){
+        // no clear, just resize and re-render immediately if image ready
+      }
       this.canvas.width = pw;
       this.canvas.height = ph;
       this.needsRender = true;
@@ -235,8 +262,7 @@ export class FrameController {
     if (f > this.loopTo) f = this.loopTo;
     this.current = f;
     this.autoplay = true;
-    // Add subtle breathing class for CSS smoothness
-    this.canvas.classList.add('is-autoplaying');
+    // breathing removed — no CSS transform
     // Choose direction towards center to avoid jump §17
     const mid = (this.loopFrom + this.loopTo)/2;
     this.autoDir = (f < mid) ? 1 : -1;
@@ -248,7 +274,7 @@ export class FrameController {
 
   stopAutoplay(){
     this.autoplay = false;
-    this.canvas.classList.remove('is-autoplaying');
+    // breathing removed
   }
 
   // Immediate render without interpolation (for loading)

@@ -79,11 +79,33 @@ export function initBlueprint(){
 
   ctrl.preloadWindow(0, 28);
   ctrl.renderFrameImmediate(0);
-  setTimeout(()=> ctrl._resize(), 80);
-  setTimeout(()=> { ctrl._resize(); ctrl.renderFrameImmediate(0); }, 260);
+  setTimeout(()=>{ ctrl._resize(); }, 95);
+  setTimeout(()=>{ ctrl._resize(); ctrl.renderFrameImmediate(ctrl.frameIndex); }, 290);
 
   window.addEventListener('scroll', handleScroll, { passive:true });
-  window.addEventListener('resize', handleScroll);
+  // Responsive resize — debounced, no jump
+  let resizeTimer2 = null;
+  const onPrintResize = ()=>{
+    clearTimeout(resizeTimer2);
+    ctrl._resize();
+    resizeTimer2 = setTimeout(()=>{
+      const p = getProgress();
+      const target = p * (printFrames.count - 1);
+      const diff = Math.abs(target - ctrl.current);
+      if (diff > 12){
+        const keepP = ctrl.current / (printFrames.count - 1);
+        ctrl.setProgress(keepP);
+        setTimeout(()=>{
+          const np = getProgress();
+          ctrl.setProgress(np);
+        }, 360);
+      } else {
+        handleScroll();
+      }
+    }, 140);
+  };
+  window.addEventListener('resize', onPrintResize, { passive:true });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', onPrintResize, { passive:true });
 
   const io = new IntersectionObserver(entries=>{
     entries.forEach(e=>{
