@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050505">
+<title>کاماک — آسانسور لوکس | Camac Luxury Elevator</title>
+<meta name="description" content="کاماک — تجربه سینمایی آسانسور لوکس. طراحی معماری، مهندسی دقیق، حرکت نرم. ظرفیت ۴۵۰ کیلوگرم، کابین ۱۰۹×۱۱۲.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="assets/css/main.css">
+<style>
+  /* Critical above-fold */
+  body{opacity:0;animation:pageIn .7s ease forwards .2s}
+  @keyframes pageIn{to{opacity:1}}
+  #nav{opacity:0;transition:opacity .8s ease .9s}
+  .hero-center{will-change:transform,opacity}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER §5 -->
+<div id="preloader" aria-label="در حال بارگذاری">
+  <div class="preloader-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="preloader-label">CAMAC — LUXURY ELEVATOR</div>
+  <div class="preloader-progress"></div>
+</div>
+
+<!-- LOADING CINEMATIC §5 -->
+<div id="loadingSection" aria-hidden="false">
+  <canvas id="loadingCanvas" class="canvas-el" width="1080" height="1920" aria-label="Loading cinematic"></canvas>
+  <div id="loadingVignette"></div>
+  <div id="brandReveal" aria-label="برند کاماک">
+    <div class="brand-halo" aria-hidden="true"></div>
+    <div class="brand-fa" aria-label="کاماک">
+      <span>ک</span><span>ا</span><span>م</span><span>ا</span><span>ک</span>
+    </div>
+    <div class="brand-line" aria-hidden="true"></div>
+    <div class="brand-en">CAMAC</div>
+    <div style="margin-top:14px;font-size:11px;letter-spacing:0.16em;color:rgba(242,240,234,0.52);font-weight:300">معماری حرکت — از ۱۳۸۲</div>
+  </div>
+</div>
+
+<!-- NAV — فقط برند §28 -->
+<nav id="nav" aria-label="ناوبری اصلی">
+  <div class="nav-logo" aria-label="کاماک">
+    <div class="nav-logo-fa">کاماک</div>
+    <div class="nav-logo-en">CAMAC</div>
+  </div>
+</nav>
+
+<!-- HERO §6-17 -->
+<div id="heroWrapper" class="sticky-wrapper">
+  <div id="heroViewport" class="sticky-viewport" aria-label="نمای آسانسور">
+    <canvas id="heroCanvas" class="canvas-el" width="1080" height="1920" aria-label="آسانسور لوکس کاماک"></canvas>
+    <div class="vignette"></div>
+    <div id="scanGlow" class="scan-glow" aria-hidden="true"></div>
+
+    <div class="hero-overlay">
+      <div class="hero-top">
+        <div class="hero-eyebrow">CAMAC ELEVATOR — ۲۰۲۶ COLLECTION</div>
+      </div>
+
+      <div class="hero-center">
+        <h1 class="hero-title">آسانسوری<br><span>که معماری را</span><br>حرکت می‌دهد</h1>
+        <div class="hero-scroll" aria-hidden="true">
+          <div class="scroll-pill"><span class="scroll-dot"></span></div>
+          <span class="scroll-text">اسکرول کنید</span>
+        </div>
+      </div>
+
+      <div id="heroMetrics" class="hero-metrics" aria-label="مشخصات سریع">
+        <!-- injected via hero.js -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BLUEPRINT §18-22 — چسبیده به هیرو، بدون فاصله -->
+<div id="blueprintWrapper" class="sticky-wrapper" style="margin-top:-1px">
+  <div id="blueprintViewport" class="sticky-viewport" aria-label="نقشه فنی">
+    <canvas id="printCanvas" class="canvas-el" width="810" height="1440" aria-label="نقشه فنی آسانسور"></canvas>
+    <div id="blueprintGrid" class="blueprint-grid" aria-hidden="true"></div>
+    <div class="vignette" style="background:radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0,0,0,0.5) 92%), linear-gradient(to top, rgba(5,5,5,0.55), transparent 40%)"></div>
+
+    <div class="blueprint-overlay" style="justify-content:flex-start; align-items:center; padding:28px 0 0; display:flex; flex-direction:column;">
+      <h2 class="blueprint-title" style="font-size: clamp(20px, 5vw, 28px); font-weight:300; letter-spacing:0.06em; color:var(--pearl); line-height:1; text-align:center; margin:0;">نقشه فنی</h2>
+      <div class="blueprint-loop-line" style="margin-top:10px; width:120px; height:1px; background:linear-gradient(90deg, transparent, rgba(242,240,234,0.42), transparent); position:relative; overflow:hidden;">
+        <span style="position:absolute; inset:0; background:linear-gradient(90deg, transparent, var(--pearl), transparent); width:42%; animation:loopLine 2.2s ease-in-out infinite;"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 01 — SPECs §29, §42 -->
+<section id="specs" class="section" aria-label="مشخصات فنی">
+  <div class="section-inner">
+    <div class="section-num">۰۱ — مشخصات فنی</div>
+    <h2 class="section-title">مهندسیِ <strong>کنترل‌شده،</strong><br>نه شلوغیِ اطلاعات.</h2>
+    <p class="section-lead">هر عدد، جای دقیق خود را دارد — از ظرفیت اسمی تا حداقل عرض مورد نیاز. این بخش، خلاصهٔ متنِ واقعیِ همان نقشه‌ای است که دیدید.</p>
+
+    <div class="specs-grid">
+      <div class="spec-card featured">
+        <div class="spec-label">ظرفیت اسمی — انتخاب بهینه</div>
+        <div class="spec-value"><strong>۴۵۰</strong> <small>KG</small> <span style="margin:0 8px;opacity:0.22">/</span> <strong>۶</strong> <small>نفر</small></div>
+        <div class="spec-note">مطابق مساحت ۱٫۲۸۶۸ مترمربع — کابین ۱۰۹×۱۱۲ — مناسب برای چاه‌های مسکونی لوکس ۱۴۲+ سانتی‌متر</div>
+      </div>
+
+      <div class="spec-card">
+        <div class="spec-label">کابین — عرض</div>
+        <div class="spec-value"><strong>۱۰۹</strong> <small>CM</small></div>
+        <div class="spec-note">عرض داخلی کابین</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">کابین — عمق</div>
+        <div class="spec-value"><strong>۱۱۲</strong> <small>CM</small></div>
+        <div class="spec-note">عمق داخلی کابین</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">عرض درب</div>
+        <div class="spec-value"><strong>۸۰</strong> <small>CM</small></div>
+        <div class="spec-note">۲ لنگه — تلسکوپی</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">تعداد درب</div>
+        <div class="spec-value"><strong>۲</strong> <small>لنگه</small></div>
+        <div class="spec-note">تلسکوپی — هم‌راستا</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">مساحت کابین</div>
+        <div class="spec-value"><strong>۱٫۲۸۶۸</strong> <small>M²</small></div>
+        <div class="spec-note">مطابق EN81</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">قاب وزنه</div>
+        <div class="spec-value"><strong>۱۰۴</strong> <small>CM</small></div>
+        <div class="spec-note">عرض قاب وزنه</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">حداقل عرض چاه</div>
+        <div class="spec-value"><strong>۱۴۲</strong> <small>CM</small></div>
+        <div class="spec-note">برای درب تلسکوپی ۸۰</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">نوع درب</div>
+        <div class="spec-value" style="font-size:22px"><strong>تلسکوپی</strong></div>
+        <div class="spec-note">حرکت نرم — صدای کم</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:rgba(242,240,234,0.42);font-family:'Space Grotesk',sans-serif;letter-spacing:0.08em">
+      <span style="border:1px solid rgba(242,240,234,0.08);padding:6px 12px;border-radius:999px">EN81-20 COMPLIANT</span>
+      <span style="border:1px solid rgba(242,240,234,0.08);padding:6px 12px;border-radius:999px">SILENT DRIVE</span>
+      <span style="border:1px solid rgba(242,240,234,0.08);padding:6px 12px;border-radius:999px">PREMIUM STEEL</span>
+    </div>
+  </div>
+</section>
+
+<!-- 02 — Calculators §30-31 -->
+<section id="calculators" class="section" aria-label="ابزار محاسبه">
+  <div class="section-inner">
+      <h2 class="section-title">از عدد تا <strong>تصمیم.</strong></h2>
+
+    <div class="calc-wrap">
+
+      <!-- Capacity Calculator -->
+      <div class="calc-card fade-in">
+        <div class="calc-head">
+          <div class="calc-title">محاسبه ظرفیت آسانسور</div>
+          <div class="calc-desc">عرض و عمق چاه را به سانتی‌متر وارد کنید — پیشنهاد ظرفیت، ابعاد کابین و وضعیت درب را می‌بینید.</div>
+        </div>
+        <div class="calc-body">
+          <form id="capacityForm" style="display:flex;flex-direction:column;gap:16px">
+            <div class="calc-grid">
+              <div class="field">
+                <label for="shaftW">عرض چاه (cm)</label>
+                <input id="shaftW" type="number" inputmode="numeric" placeholder="مثلاً ۱۶۰" min="80" max="500">
+              </div>
+              <div class="field">
+                <label for="shaftD">عمق چاه (cm)</label>
+                <input id="shaftD" type="number" inputmode="numeric" placeholder="مثلاً ۱۷۰" min="80" max="500">
+              </div>
+              <div class="field">
+                <label for="shaftH">ارتفاع چاه (m)</label>
+                <input id="shaftH" type="number" step="0.1" placeholder="مثلاً ۱۵" min="3" max="120">
+              </div>
+              <div class="field">
+                <label for="doorType">نوع درب</label>
+                <select id="doorType">
+                  <option value="telescopic">تلسکوپی — ۲ لنگه ۸۰</option>
+                  <option value="central">سانترال — ۲ لنگه</option>
+                </select>
+              </div>
+            </div>
+            <div class="calc-actions">
+              <button type="submit" class="btn-primary">محاسبه ظرفیت</button>
+              <button type="button" id="capacityReset" class="btn-ghost">پاک کردن</button>
+            </div>
+          </form>
+          <div id="capacityResult" class="calc-result" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- Steel Calculator -->
+      <div class="calc-card fade-in">
+        <div class="calc-head">
+          <div class="calc-title">محاسبه لیست آهن‌آلات</div>
+          <div class="calc-desc">برآورد اولیهٔ ریل، براکت، سیم‌بکسل و شاسی — بر اساس ارتفاع و تعداد توقف. جدول، Dark Luxury و خوانا.</div>
+        </div>
+        <div class="calc-body">
+          <form id="steelForm" style="display:flex;flex-direction:column;gap:16px">
+            <div class="calc-grid">
+              <div class="field">
+                <label for="steelHeight">ارتفاع مسیر (m)</label>
+                <input id="steelHeight" type="number" step="0.1" placeholder="مثلاً ۱۸" min="3" max="200">
+              </div>
+              <div class="field">
+                <label for="steelStops">تعداد توقف</label>
+                <input id="steelStops" type="number" placeholder="مثلاً ۵" min="2" max="40">
+              </div>
+              <div class="field">
+                <label for="steelPit">عمق چاهک (cm)</label>
+                <input id="steelPit" type="number" placeholder="۱۴۰" value="140">
+              </div>
+              <div class="field">
+                <label for="steelOverhead">ارتفاع بالاسری (cm)</label>
+                <input id="steelOverhead" type="number" placeholder="۴۲۰" value="420">
+              </div>
+              <div class="field">
+                <label for="steelSpeed">سرعت نامی</label>
+                <select id="steelSpeed">
+                  <option value="1.0">۱٫۰ m/s</option>
+                  <option value="1.6">۱٫۶ m/s</option>
+                  <option value="2.5">۲٫۵ m/s</option>
+                </select>
+              </div>
+            </div>
+            <div class="calc-actions">
+              <button type="submit" class="btn-primary">محاسبه آهن‌آلات</button>
+              <button type="button" id="steelReset" class="btn-ghost">پاک کردن</button>
+            </div>
+          </form>
+          <div id="steelResult" class="calc-result" aria-live="polite"></div>
+          <div id="steelTableWrap" class="steel-table-wrap" style="display:none"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="footer" aria-label="پاورقی">
+  <div class="footer-logo">کاماک</div>
+  <div class="footer-en">CAMAC</div>
+</footer>
+
+<script type="module" src="assets/js/main.js"></script>
+<noscript>
+  <style>#preloader{display:none}#loadingSection{display:none}</style>
+  <div style="padding:24px;text-align:center;background:#111;color:#F2F0EA">برای تجربهٔ کامل، لطفاً جاوااسکریپت را فعال کنید.</div>
+</noscript>
+</body>
+</html>
