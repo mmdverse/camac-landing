@@ -140,8 +140,8 @@ button{font-family:inherit}
 
 /* STICKY WRAPPERS — Fixed: wrapper height defines scroll length */
 .sticky-wrapper{position:relative;width:100%; margin:0; padding:0; border:none}
-#heroWrapper{height:480vh; margin:0}
-#blueprintWrapper{height:380vh; margin:0; border-top:none}
+#heroWrapper{height:1440vh; margin:0}
+#blueprintWrapper{height:1140vh; margin:0; border-top:none}
 .sticky-viewport{
   position:sticky;top:0;height:100vh;height:100dvh;width:100vw;overflow:hidden;background:var(--black);
   display:flex;justify-content:center;align-items:center;
