@@ -122,22 +122,11 @@ export function initLoader({ onComplete }){
         return;
       });
 
-      const onTimeUpdate = ()=>{
-        const t = loadingVideo.currentTime || 0;
-        if (t >= brandStart && !brandShown){
-          brandShown = true;
-          brand.classList.add('visible');
-        }
-        if (t >= brandStart){
-          const fadeP = Math.min(1, (t - brandStart) / Math.max(0.5, duration - brandStart));
-          loadingVideo.style.opacity = String(1 - fadeP*0.92);
-        }
-      };
-
+      let videoRaf = null;
       const onEnded = ()=>{
         if (videoEnded) return;
         videoEnded = true;
-        loadingVideo.removeEventListener('timeupdate', onTimeUpdate);
+        if (videoRaf) cancelAnimationFrame(videoRaf);
         setTimeout(()=>{
           loadingSection.classList.add('out');
           document.body.classList.add('loader-done');
@@ -146,20 +135,38 @@ export function initLoader({ onComplete }){
           if (onComplete) onComplete();
         }, 420);
       };
-
-      loadingVideo.addEventListener('timeupdate', onTimeUpdate);
       loadingVideo.addEventListener('ended', onEnded, {once:true});
+
+      // Smooth 60fps fade via rAF — not timeupdate (which throttles to ~4Hz and causes jump)
+      const smoothVideoTick = ()=>{
+        if (videoEnded) return;
+        const t = loadingVideo.currentTime || 0;
+        if (t >= brandStart && !brandShown){
+          brandShown = true;
+          brand.classList.add('visible');
+        }
+        if (t >= brandStart){
+          const fadeP = Math.min(1, (t - brandStart) / Math.max(0.5, duration - brandStart));
+          // ease-out for buttery fade, GPU only opacity
+          const eased = 1 - Math.pow(1 - fadeP, 2);
+          loadingVideo.style.opacity = String(1 - eased*0.92);
+        }
+        if (!loadingVideo.ended && !videoEnded){
+          videoRaf = requestAnimationFrame(smoothVideoTick);
+        }
+      };
+      videoRaf = requestAnimationFrame(smoothVideoTick);
 
       // lock scroll during loading
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
-      raf = { cancel: ()=>{ loadingVideo.removeEventListener('timeupdate', onTimeUpdate); loadingVideo.removeEventListener('ended', onEnded); } };
+      raf = { cancel: ()=>{ if (videoRaf) cancelAnimationFrame(videoRaf); loadingVideo.removeEventListener('ended', onEnded); } };
 
       // Fallback timer: if video stalls (readyState <2 for >1.2s), switch to frames
       let fallbackTimer = setTimeout(()=>{
         if (loadingVideo.readyState < 2 && !videoEnded && !brandShown){
           console.warn('[loader] video stall, fallback to frames');
-          loadingVideo.removeEventListener('timeupdate', onTimeUpdate);
+          if (videoRaf) cancelAnimationFrame(videoRaf);
           loadingVideo.removeEventListener('ended', onEnded);
           loadingVideo.style.display = 'none';
           initFrameFallback();
@@ -175,7 +182,7 @@ export function initLoader({ onComplete }){
       const onClickSkip = ()=>{
         if (!canSkip || videoEnded) return;
         videoEnded = true;
-        loadingVideo.removeEventListener('timeupdate', onTimeUpdate);
+        if (videoRaf) cancelAnimationFrame(videoRaf);
         loadingVideo.removeEventListener('ended', onEnded);
         loadingSection.classList.add('out');
         document.documentElement.style.overflow = '';
