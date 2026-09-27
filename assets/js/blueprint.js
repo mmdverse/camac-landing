@@ -77,8 +77,12 @@ export function initBlueprint(){
     if (!ticking){ ticking=true; requestAnimationFrame(rafScroll); }
   }
 
-  ctrl.preloadWindow(0, 28);
+  ctrl.preloadWindow(0, 20);
   ctrl.renderFrameImmediate(0);
+  // warm progressively: start, middle, end
+  setTimeout(()=> ctrl.preloadWindow(30, 20), 400);
+  setTimeout(()=> ctrl.preloadWindow(150, 30), 950);
+  setTimeout(()=> ctrl.preloadWindow(280, 16), 1500);
   setTimeout(()=>{ ctrl._resize(); }, 95);
   setTimeout(()=>{ ctrl._resize(); ctrl.renderFrameImmediate(ctrl.frameIndex); }, 290);
 

@@ -12,7 +12,7 @@ export class FrameController {
     this.fit = fit; // 'cover' or 'contain'
 
     this.images = new Array(count); // Image cache sparse
-    this.cacheLimit = 56; // balanced for mobile memory vs smoothness
+    this.cacheLimit = 90; // B: larger cache for smooth scrub, still mobile safe
     this.lru = []; // indices MRU
 
     this.progress = 0; // 0..1 target
@@ -31,10 +31,14 @@ export class FrameController {
     this.onFrame = null; // callback(frameIndex)
     this._boundRender = this._renderLoop.bind(this);
     this._resizeObserver = null;
-    this._dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this._dpr = Math.min(window.devicePixelRatio || 1, 1.5); // B-1: cap DPR to 1.5 for perf
 
     this._loadingSet = new Set();
     this._pending = new Map(); // index -> Image pending
+    this._queue = []; // B-2: queue for concurrency control
+    this._activeLoads = 0;
+    this._maxConcurrent = 6; // limit parallel fetches
+    this._queuedSet = new Set(); // track queued indices
 
     this._initCanvas();
   }
@@ -52,7 +56,7 @@ export class FrameController {
         // ignore tiny changes (<2px) that cause jitter on mobile addressbar
         if (Math.abs(w - lastW) < 2 && Math.abs(h - lastH) < 2) return;
         lastW = w; lastH = h;
-        this._dpr = Math.min(window.devicePixelRatio||1,2);
+        this._dpr = Math.min(window.devicePixelRatio||1,1.5);
         this._resize();
         this.needsRender = true;
       });
@@ -87,7 +91,7 @@ export class FrameController {
       }
     }
     // clamp to avoid extreme DPR spikes on zoom
-    const dpr = Math.min(window.devicePixelRatio||1, 2);
+    const dpr = Math.min(window.devicePixelRatio||1, 1.5);
     this._dpr = dpr;
     const pw = Math.max(1, Math.round(w * dpr));
     const ph = Math.max(1, Math.round(h * dpr));
@@ -157,7 +161,10 @@ export class FrameController {
     if (this._pending.has(index)) {
       const pImg = this._pending.get(index);
       if (pImg && pImg.complete && pImg.naturalWidth) {
-        // promote to cache
+        // promote to cache — ensure decode done
+        if (pImg.decode) {
+          // already decoded? promote
+        }
         this._pending.delete(index);
         this._loadingSet.delete(index);
         this.images[index] = pImg;
@@ -166,30 +173,82 @@ export class FrameController {
       }
       return null;
     }
-    if (this._loadingSet.has(index)) return null;
-    this._loadingSet.add(index);
-    const img = new Image();
-    img.decoding = "async";
-    // keep pending reference to prevent GC
-    this._pending.set(index, img);
-    // Use webp naming frame_0000.webp
-    img.src = `${this.dir}/frame_${String(index).padStart(4,'0')}.webp`;
-    img.onload = ()=>{
-      this._loadingSet.delete(index);
-      this._pending.delete(index);
-      this.images[index] = img;
-      this.lru.push(index);
-      this._evictIfNeeded(index);
-      // If this is near current frame, trigger render
-      if (Math.abs(index - this.frameIndex) < 4) this.needsRender = true;
-    };
-    img.onerror = ()=>{
-      this._loadingSet.delete(index);
-      this._pending.delete(index);
-      // retry after 600ms once
-      setTimeout(()=>{ /* allow retry */ }, 600);
-    };
+    if (this._loadingSet.has(index) || this._queuedSet.has(index)) return null;
+    // enqueue with priority (closer to current first)
+    this._enqueue(index);
     return null;
+  }
+
+  _enqueue(index){
+    // avoid duplicate
+    if (this._queuedSet.has(index) || this._loadingSet.has(index)) return;
+    this._queuedSet.add(index);
+    // insert sorted by distance to current frame for priority
+    const dist = Math.abs(index - this.frameIndex);
+    let inserted = false;
+    for (let i=0;i<this._queue.length;i++){
+      const otherDist = Math.abs(this._queue[i] - this.frameIndex);
+      if (dist < otherDist){
+        this._queue.splice(i,0,index);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) this._queue.push(index);
+    this._processQueue();
+  }
+
+  _processQueue(){
+    while (this._activeLoads < this._maxConcurrent && this._queue.length>0){
+      const idx = this._queue.shift();
+      this._queuedSet.delete(idx);
+      if (this.images[idx] || this._pending.has(idx)) continue;
+      this._activeLoads++;
+      this._loadingSet.add(idx);
+      const img = new Image();
+      img.decoding = "async";
+      // Use webp naming frame_0000.webp
+      const src = `${this.dir}/frame_${String(idx).padStart(4,'0')}.webp`;
+      img.src = src;
+      this._pending.set(idx, img);
+      const onDone = ()=>{
+        this._activeLoads--;
+        this._loadingSet.delete(idx);
+        this._pending.delete(idx);
+        // decode off-main-thread where supported
+        const finalize = ()=>{
+          this.images[idx] = img;
+          this.lru.push(idx);
+          this._evictIfNeeded(idx);
+          if (Math.abs(idx - this.frameIndex) < 4) this.needsRender = true;
+          this._processQueue();
+        };
+        if (img.decode){
+          img.decode().then(finalize).catch(finalize);
+        } else {
+          finalize();
+        }
+      };
+      const onErr = ()=>{
+        this._activeLoads--;
+        this._loadingSet.delete(idx);
+        this._pending.delete(idx);
+        this._processQueue();
+        // retry after 900ms once if still needed
+        setTimeout(()=>{
+          if (!this.images[idx] && Math.abs(idx - this.frameIndex) < 24){
+            this._enqueue(idx);
+          }
+        }, 900);
+      };
+      img.onload = onDone;
+      img.onerror = onErr;
+      // if already complete (cached), trigger
+      if (img.complete && img.naturalWidth){
+        // give decode a tick
+        setTimeout(onDone, 0);
+      }
+    }
   }
 
   _evictIfNeeded(centerIdx){
@@ -218,10 +277,15 @@ export class FrameController {
   }
 
   preloadWindow(center, radius=28){
-    for (let d=-radius; d<=radius; d++){
-      const idx = Math.round(center + d);
-      if (idx>=0 && idx < this.count) this._getImage(idx);
+    // B-5: smarter preload — closest first, not sequential
+    const indices = [];
+    for (let d=0; d<=radius; d++){
+      const a = Math.round(center + d);
+      const b = Math.round(center - d);
+      if (a>=0 && a < this.count) indices.push(a);
+      if (d!==0 && b>=0 && b < this.count) indices.push(b);
     }
+    for (const idx of indices) this._getImage(idx);
   }
 
   setProgress(p){

@@ -48,19 +48,23 @@ initLoader({
       setTimeout(()=> el.classList.add('visible'), 300 + i*90);
     });
 
-    // Preload remaining frames in idle
+    // Preload remaining frames in idle — B-5: let hero/blueprint controllers handle priority, just warm SW cache
     if ('requestIdleCallback' in window){
       requestIdleCallback(()=>{
-        // Warm caches
-        for (let i=0;i<40;i++){
-          const img = new Image(); img.src = `assets/frames/hero/frame_${String(i).padStart(4,'0')}.webp`;
-        }
+        // SW will cache on demand; no need to flood
       });
     }
   }
 });
 
 // If loader already skipped via reduced motion? loader handles itself
+
+// Register Service Worker — B-3: cache frames for instant reload
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
 
 // Fallback if JS disabled? not needed
 

@@ -195,9 +195,13 @@ export function initHero(){
     }
   }
 
-  // Initial preload — wider window for smoothness, stable sizing
-  ctrl.preloadWindow(0, 32);
+  // Initial preload — B-5: solid first, then scan/finale progressively (queue handles 6 concurrent)
+  ctrl.preloadWindow(0, 22);
   ctrl.renderFrameImmediate(0);
+  // warm solid middle and scan center without flooding network
+  setTimeout(()=> ctrl.preloadWindow(18, 18), 350);
+  setTimeout(()=> ctrl.preloadWindow(165, 24), 900);
+  setTimeout(()=> ctrl.preloadWindow(232, 8), 1450);
   // ensure canvas sized without flash
   setTimeout(()=>{ ctrl._resize(); }, 90);
   setTimeout(()=>{ ctrl._resize(); ctrl.renderFrameImmediate(ctrl.frameIndex); }, 280);
